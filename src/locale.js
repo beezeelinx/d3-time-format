@@ -64,12 +64,17 @@ export default function formatLocale(locale) {
     "e": formatDayOfMonth,
     "f": formatMicroseconds,
     "H": formatHour24,
-    "I": formatHour12,
+    "I": (d, p) => {
+      return locale_periods.length > 1 ? pad(d.getHours() % 12 || 12, p, 2) : formatHour24(d, p);
+    }
+    ,
     "j": formatDayOfYear,
     "L": formatMilliseconds,
     "m": formatMonthNumber,
     "M": formatMinutes,
-    "p": formatPeriod,
+    "p": (d) => {
+      return locale_periods[+(d.getHours() >= 12) % locale_periods.length];
+    },
     "q": formatQuarter,
     "Q": formatUnixTimestamp,
     "s": formatUnixTimestampSeconds,
@@ -323,9 +328,9 @@ export default function formatLocale(locale) {
     return locale_months[d.getMonth()];
   }
 
-  function formatPeriod(d) {
-    return locale_periods[+(d.getHours() >= 12)];
-  }
+  // function formatPeriod(d) {
+  //   return locale_periods[+(d.getHours() >= 12)];
+  // }
 
   function formatQuarter(d) {
     return 1 + ~~(d.getMonth() / 3);
@@ -513,9 +518,9 @@ function formatHour24(d, p) {
   return pad(d.getHours(), p, 2);
 }
 
-function formatHour12(d, p) {
-  return pad(d.getHours() % 12 || 12, p, 2);
-}
+// function formatHour12(d, p) {
+//   return pad(d.getHours() % 12 || 12, p, 2);
+// }
 
 function formatDayOfYear(d, p) {
   return pad(1 + timeDay.count(timeYear(d), d), p, 3);
@@ -588,7 +593,7 @@ function formatUTCHour24(d, p) {
 }
 
 function formatUTCHour12(d, p) {
-  return pad(d.getUTCHours() % 12 || 12, p, 2);
+  return pad(d.getUTCHours(), p, 2);
 }
 
 function formatUTCDayOfYear(d, p) {
